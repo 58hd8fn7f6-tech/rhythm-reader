@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rhythm Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: single centered column; a rhythm "tempo ruler" is the one signature element. */
+:root{
+  --bg:#f6f6fa; --surface:#ffffff; --fg:#17161f; --muted:#5d5b6e; --line:#dddbe8; --accent:#6d4fe0;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --cha:#e8650f; --wcs:#7c4fe8; --nc2s:#2f6fe0; --ecs:#b68a05; --two:#9a5a0c; --waltz:#d63c87; --r8:#b81d63;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f14; --surface:#18171f; --fg:#efeef5; --muted:#a3a1b4; --line:#2a2935; --accent:#9b84ff;
+  --cha:#f98a3c; --wcs:#a184ff; --nc2s:#6b9bff; --ecs:#e6bb2a; --two:#d39545; --waltz:#f26aa8; --r8:#e2508f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f0f14; --surface:#18171f; --fg:#efeef5; --muted:#a3a1b4; --line:#2a2935; --accent:#9b84ff;
+  --cha:#f98a3c; --wcs:#a184ff; --nc2s:#6b9bff; --ecs:#e6bb2a; --two:#d39545; --waltz:#f26aa8; --r8:#e2508f;
+  color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--body)}
+.wrap{max-width:680px;margin:0 auto;padding-inline:20px;padding-block:48px 56px;display:flex;flex-direction:column;gap:44px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,7vw,3.4rem);font-weight:800;letter-spacing:-.02em;line-height:1.02}
+h2{font-size:1.35rem;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+.lede{font-size:1.12rem;color:var(--muted);max-width:60ch}
+.eyebrow{font:500 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+header{display:flex;flex-direction:column;gap:14px}
+section{display:flex;flex-direction:column;gap:16px}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+ol.steps li{display:grid;grid-template-columns:2rem 1fr;gap:12px;counter-increment:s}
+ol.steps li::before{content:counter(s);font:500 .9rem/1.75 var(--mono);color:var(--accent)}
+ol.steps b{font-weight:600}
+.ruler{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;overflow-x:auto}
+.row{display:grid;grid-template-columns:minmax(0,10.5rem) 1fr auto;gap:12px;align-items:center;min-width:0}
+.name{font-weight:600;font-size:.95rem}
+.track{position:relative;height:8px;border-radius:4px;background:var(--line)}
+.track span{position:absolute;top:0;bottom:0;border-radius:4px}
+.bpm{font:500 .78rem var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.meter{font:500 .7rem var(--mono);color:var(--muted);padding:1px 6px;border:1px solid var(--line);border-radius:4px;margin-left:6px}
+.scale{display:grid;grid-template-columns:minmax(0,10.5rem) 1fr auto;gap:12px}
+.scale div{display:flex;justify-content:space-between;font:500 .7rem var(--mono);color:var(--muted)}
+.scale .ghost{visibility:hidden;font:500 .78rem var(--mono)}
+.sources{display:flex;flex-direction:column;gap:12px}
+.src{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.src strong{font-weight:600}
+.src p{color:var(--muted);font-size:.95rem}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.credit{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:1rem}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:460px){.row,.scale{grid-template-columns:minmax(0,7.5rem) 1fr auto}.name{font-size:.86rem}}
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">iPhone Shortcut · Line dance</span>
+    <h1>Rhythm Reader</h1>
+    <p class="lede">Hold up your phone while a song plays, and Rhythm Reader tells you which line dance rhythm it's danced to, with the BPM, the meter, and how sure it is.</p>
+  </header>
+
+  <section>
+    <h2>How a call is made</h2>
+    <ol class="steps">
+      <li><span><b>Identify the song.</b> Shazam recognizes the track playing in the room.</span></li>
+      <li><span><b>Check the personal library.</b> Songs already confirmed on the dance floor return instantly.</span></li>
+      <li><span><b>Search CopperKnob step sheets.</b> A published dance tagged Cha Cha, WCS, or Waltz settles the question.</span></li>
+      <li><span><b>Look up tempo and time signature.</b> Measured BPM and meter come from GetSongBPM.</span></li>
+      <li><span><b>Weigh the evidence.</b> Claude combines the sources and returns a rhythm, confidence, and runner-up picks.</span></li>
+      <li><span><b>Confirm or correct.</b> One tap saves the answer. Corrections are kept so similar songs get called better next time.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Rhythms it calls</h2>
+    <p class="lede" style="font-size:1rem">Typical danced tempo for each rhythm. Ranges overlap, which is why meter and groove matter as much as speed.</p>
+    <div class="ruler" role="table" aria-label="Danced tempo range by rhythm">
+      <!-- scale 60 to 200 BPM -->
+      <div class="row" role="row"><span class="name" role="cell">Night Club Two Step</span><div class="track"><span style="left:7.1%;width:21.4%;background:var(--nc2s)"></span></div><span class="bpm" role="cell">60–90</span></div>
+      <div class="row" role="row"><span class="name" role="cell">West Coast Swing</span><div class="track"><span style="left:14.3%;width:25.7%;background:var(--wcs)"></span></div><span class="bpm" role="cell">80–116</span></div>
+      <div class="row" role="row"><span class="name" role="cell">Cha Cha</span><div class="track"><span style="left:25.7%;width:21.4%;background:var(--cha)"></span></div><span class="bpm" role="cell">96–126</span></div>
+      <div class="row" role="row"><span class="name" role="cell">Waltz<span class="meter">3/4</span></span><div class="track"><span style="left:17.9%;width:32.1%;background:var(--waltz)"></span></div><span class="bpm" role="cell">85–130</span></div>
+      <div class="row" role="row"><span class="name" role="cell">East Coast Swing</span><div class="track"><span style="left:50%;width:32.1%;background:var(--ecs)"></span></div><span class="bpm" role="cell">130–175</span></div>
+      <div class="row" role="row"><span class="name" role="cell">Rolling Eight<span class="meter">3/4</span></span><div class="track"><span style="left:60.7%;width:32.1%;background:var(--r8)"></span></div><span class="bpm" role="cell">145–190</span></div>
+      <div class="row" role="row"><span class="name" role="cell">Two Step</span><div class="track"><span style="left:78.6%;width:21.4%;background:var(--two)"></span></div><span class="bpm" role="cell">170–200</span></div>
+      <div class="scale" aria-hidden="true"><span></span><div><span>60</span><span>95</span><span>130</span><span>165</span><span>200</span></div><span class="ghost">000–000</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Data sources</h2>
+    <div class="credit">Tempo and time signature data provided by <a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM.com</a>.</div>
+    <div class="sources">
+      <div class="src"><strong><a href="https://getsongbpm.com" target="_blank" rel="noopener">GetSongBPM</a></strong><p>Measured BPM and time signature for each recognized song, used to separate 3/4 rhythms from 4/4 and to check tempo.</p></div>
+      <div class="src"><strong><a href="https://www.copperknob.co.uk" target="_blank" rel="noopener">CopperKnob</a></strong><p>Published line dance step sheets. A dance's level or title often names its rhythm outright.</p></div>
+      <div class="src"><strong>Shazam</strong><p>Song recognition through the iOS Recognize Music action.</p></div>
+    </div>
+  </section>
+
+  <footer>A personal, non-commercial project by Eric Tatum.</footer>
+</div>
+</body></html>
